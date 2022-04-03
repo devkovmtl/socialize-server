@@ -4,10 +4,15 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
+const mongoose = require('mongoose');
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
+const { MONGO_URI, MONGO_OPTIONS } = require('./config/database');
 
-const { NODE_ENV } = process.env;
+mongoose.connect(MONGO_URI, MONGO_OPTIONS);
+mongoose.connection.on('connected', () => {
+  console.log('Database connected');
+});
 
 const app = express();
 
