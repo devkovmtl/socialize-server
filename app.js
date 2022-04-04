@@ -1,29 +1,34 @@
 require('dotenv').config();
 const createError = require('http-errors');
 const express = require('express');
-const path = require('path');
-const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const mongoose = require('mongoose');
+const cors = require('cors');
 
 const indexRouter = require('./routes/index');
 
 const { NODE_ENV } = process.env;
 const { MONGO_URI, MONGO_OPTIONS } = require('./config/database');
 
+// Database connection
 mongoose.connect(MONGO_URI, MONGO_OPTIONS);
 mongoose.connection.on('connected', () => {
   console.log('Database connected');
 });
 
+// Passport configuration (authentication)
+require('./config/passport');
+
 const app = express();
 
+// middlewares
 app.use(logger('dev'));
+
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
 
+// routes
 app.use('/api/v1/', indexRouter);
 
 // catch 404 and forward to error handler
