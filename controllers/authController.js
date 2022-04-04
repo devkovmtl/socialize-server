@@ -91,16 +91,16 @@ exports.login = [
       if (err) {
         return res.status(500).json({
           success: false,
-          message: info.message || 'Login failed',
-          errors: [{ msg: err.message || 'Login failed' }],
+          message: info?.message || 'Login failed',
+          errors: [{ msg: err?.message || 'Login failed' }],
         });
       }
 
       if (!user) {
         return res.status(422).json({
           success: false,
-          message: info.message || 'Login failed',
-          errors: [{ msg: info.message || 'Login failed' }],
+          message: info?.message || 'Login failed',
+          errors: [{ msg: info?.message || 'Login failed' }],
         });
       }
 
@@ -121,3 +121,36 @@ exports.login = [
     })(req, res, next);
   },
 ];
+
+exports.checkAccessToken = (req, res, next) => {
+  passport.authenticate('jwt', { session: false }, (err, user, info) => {
+    if (err) {
+      return res.status(500).json({
+        success: false,
+        message: info.message || 'Check access token failed',
+        errors: [{ msg: err.message || 'Check access token failed' }],
+      });
+    }
+    if (!user) {
+      return res.status(422).json({
+        success: false,
+        message: info.message || 'Check access token failed',
+        errors: [{ msg: info.message || 'Check access token failed' }],
+      });
+    }
+
+    if (user) {
+      return res.json({
+        success: true,
+        message: 'Check access token successful',
+        user: {
+          id: user._id,
+          username: user.username,
+          email: user.email,
+          role: user.role,
+        },
+        accessToken: generateJwtToken(user),
+      });
+    }
+  })(req, res, next);
+};
