@@ -1,6 +1,34 @@
 const { getUserIdFromReq } = require('../utils/getUserIdFromReq');
 const FriendRequest = require('../models/friendRequest');
 
+exports.getFriendRequests = async (req, res, next) => {
+  const userId = getUserIdFromReq(req);
+
+  if (!userId) {
+    return res.status(422).json({
+      success: false,
+      message: 'User id is required',
+      errors: [{ msg: 'User id is required' }],
+    });
+  }
+
+  try {
+    const friendRequests = await FriendRequest.find({
+      $or: [{ sender: userId }, { receiver: userId }],
+    })
+      .populate('sender', 'name username')
+      .populate('receiver', 'name username');
+
+    return res.status(200).json({
+      success: true,
+      message: 'Friend requests fetched successfully',
+      data: friendRequests,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 exports.sendFriendRequest = async (req, res, next) => {
   const userId = getUserIdFromReq(req);
   const { friendId } = req.body;

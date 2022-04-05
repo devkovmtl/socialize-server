@@ -21,6 +21,12 @@ router.post(
   friendController.sendFriendRequest
 );
 
+router.get(
+  '/friends/requests',
+  isAuthenticated,
+  friendController.getFriendRequests
+);
+
 /**
  * Authentication routes
  */
