@@ -18,7 +18,7 @@ exports.isAuthenticated = async (req, res, next) => {
       });
     }
 
-    req.user = userTokenInfo(user);
+    // req.user = userTokenInfo(user);
 
     return next();
   })(req, res, next);
@@ -49,7 +49,7 @@ exports.isAdmin = async (req, res, next) => {
       });
     }
 
-    req.user = userTokenInfo(user);
+    // req.user = userTokenInfo(user);
 
     return next();
   })(req, res, next);
