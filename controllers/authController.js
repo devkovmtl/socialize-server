@@ -154,3 +154,48 @@ exports.checkAccessToken = (req, res, next) => {
     }
   })(req, res, next);
 };
+
+exports.facebookLogin = passport.authenticate('facebook', {
+  scope: ['email', 'public_profile'],
+});
+
+exports.facebookCallback = async (req, res, next) => {
+  passport.authenticate(
+    'facebook',
+    {
+      session: false,
+      successRedirect: '/api/v1/',
+    },
+    (err, user, info) => {
+      if (err) {
+        return res.status(500).json({
+          success: false,
+          message: (info && info.message) || 'Facebook login failed',
+          errors: [{ msg: err.message || 'Facebook login failed' }],
+        });
+      }
+
+      if (!user) {
+        return res.status(422).json({
+          success: false,
+          message: (info && info.message) || 'Facebook login failed',
+          errors: [{ msg: (info && info.message) || 'Facebook login failed' }],
+        });
+      }
+
+      const accessToken = generateJwtToken(user);
+
+      return res.json({
+        success: true,
+        message: 'Login successful',
+        user: {
+          id: user._id,
+          username: user.username,
+          email: user?.email,
+          role: user.role,
+        },
+        accessToken,
+      });
+    }
+  )(req, res, next);
+};
