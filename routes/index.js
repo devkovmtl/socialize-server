@@ -20,7 +20,11 @@ router.post(
   isAuthenticated,
   friendController.sendFriendRequest
 );
-
+router.put(
+  '/friends/request/:friendReqId',
+  isAuthenticated,
+  friendController.updateFriendRequest
+);
 router.get(
   '/friends/requests',
   isAuthenticated,

@@ -95,3 +95,71 @@ exports.sendFriendRequest = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.updateFriendRequest = async (req, res, next) => {
+  const userId = getUserIdFromReq(req);
+
+  if (!userId) {
+    return res.status(422).json({
+      success: false,
+      message: 'User id is required',
+      errors: [{ msg: 'User id is required' }],
+    });
+  }
+  const { friendReqId } = req.params;
+  const { status } = req.body;
+
+  if (!friendReqId) {
+    return res.status(422).json({
+      success: false,
+      message: 'Friend request id is required',
+      errors: [{ msg: 'Friend request id is required' }],
+    });
+  }
+
+  if (!status) {
+    return res.status(422).json({
+      success: false,
+      message: 'Status is required',
+      errors: [{ msg: 'Status is required' }],
+    });
+  }
+
+  if (!['accepted', 'rejected', 'blocked'].includes(status)) {
+    return res.status(422).json({
+      success: false,
+      message: 'Status must be accepted, rejected or blocked',
+      errors: [{ msg: 'Status must be accepted, rejected or blocked' }],
+    });
+  }
+
+  try {
+    const friendRequest = await FriendRequest.findById(friendReqId);
+
+    if (!friendRequest) {
+      return res.status(422).json({
+        success: false,
+        message: 'Friend request not found',
+        errors: [{ msg: 'Friend request not found' }],
+      });
+    }
+    // make sure that the user is the receiver of the friend request
+    if (friendRequest.receiver.toString() !== userId) {
+      return res.status(422).json({
+        success: false,
+        message: 'You are not allowed to update this friend request',
+        errors: [{ msg: 'You are not allowed to update this friend request' }],
+      });
+    }
+    // update freind request status
+    friendRequest.status = status;
+    await friendRequest.save();
+
+    return res.status(200).json({
+      success: true,
+      message: 'Friend request updated successfully',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
