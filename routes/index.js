@@ -1,8 +1,9 @@
 const { Router } = require('express');
 const router = Router();
 
-const authController = require('../controllers/authController');
 const { isAuthenticated, isAdmin } = require('../middlewares/auth');
+const authController = require('../controllers/authController');
+const friendController = require('../controllers/friendController');
 
 router.get('/', (req, res) => {
   res.json({
@@ -10,6 +11,15 @@ router.get('/', (req, res) => {
     message: 'Welcome to the API',
   });
 });
+
+/**
+ * Friends request
+ */
+router.post(
+  '/friends/request',
+  isAuthenticated,
+  friendController.sendFriendRequest
+);
 
 /**
  * Authentication routes
