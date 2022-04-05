@@ -6,20 +6,19 @@ exports.isAuthenticated = async (req, res, next) => {
     if (err) {
       return res.status(500).json({
         success: false,
-        message: info.message || 'Check access token failed',
-        errors: [{ msg: err.message || 'Check access token failed' }],
+        message: (info && info?.message) || 'Check access token failed',
+        errors: [{ msg: (err && err?.message) || 'Check access token failed' }],
       });
     }
     if (!user) {
       return res.status(422).json({
         success: false,
-        message: info.message || 'Check access token failed',
-        errors: [{ msg: info.message || 'Check access token failed' }],
+        message: (info && info?.message) || 'Check access token failed',
+        errors: [
+          { msg: (info && info?.message) || 'Check access token failed' },
+        ],
       });
     }
-
-    // req.user = userTokenInfo(user);
-
     return next();
   })(req, res, next);
 };
@@ -29,15 +28,17 @@ exports.isAdmin = async (req, res, next) => {
     if (err) {
       return res.status(500).json({
         success: false,
-        message: info.message || 'Check access token failed',
-        errors: [{ msg: err.message || 'Check access token failed' }],
+        message: (info && info?.message) || 'Check access token failed',
+        errors: [{ msg: (err && err?.message) || 'Check access token failed' }],
       });
     }
     if (!user) {
       return res.status(422).json({
         success: false,
-        message: info.message || 'Check access token failed',
-        errors: [{ msg: info.message || 'Check access token failed' }],
+        message: (info && info?.message) || 'Check access token failed',
+        errors: [
+          { msg: (info && info?.message) || 'Check access token failed' },
+        ],
       });
     }
 
@@ -48,8 +49,6 @@ exports.isAdmin = async (req, res, next) => {
         errors: [{ msg: 'You are not authorized to perform this action' }],
       });
     }
-
-    // req.user = userTokenInfo(user);
 
     return next();
   })(req, res, next);
