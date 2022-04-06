@@ -4,6 +4,7 @@ const router = Router();
 const { isAuthenticated, isAdmin } = require('../middlewares/auth');
 const authController = require('../controllers/authController');
 const friendController = require('../controllers/friendController');
+const postController = require('../controllers/postController');
 
 router.get('/', (req, res) => {
   res.json({
@@ -13,7 +14,12 @@ router.get('/', (req, res) => {
 });
 
 /**
- * Friends request
+ * Post routes
+ */
+router.post('/posts', isAuthenticated, postController.createPost);
+
+/**
+ * Friends routes
  */
 router.post(
   '/friends/request',
