@@ -16,7 +16,10 @@ router.get('/', (req, res) => {
 /**
  * Post routes
  */
+// create a post
 router.post('/posts', isAuthenticated, postController.createPost);
+// get post from current user and friends of current user
+router.get('/posts', isAuthenticated, postController.getUserAndFriendsPosts);
 
 /**
  * Friends routes
