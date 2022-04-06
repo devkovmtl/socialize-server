@@ -5,10 +5,10 @@ exports.getFriendRequests = async (req, res, next) => {
   const userId = getUserIdFromReq(req);
 
   if (!userId) {
-    return res.status(422).json({
+    return res.status(401).json({
       success: false,
-      message: 'User id is required',
-      errors: [{ msg: 'User id is required' }],
+      message: 'Unauthorized',
+      errors: [{ msg: 'Unauthorized' }],
     });
   }
 
@@ -34,10 +34,10 @@ exports.sendFriendRequest = async (req, res, next) => {
   const { friendId } = req.body;
 
   if (!userId) {
-    return res.status(422).json({
+    return res.status(401).json({
       success: false,
-      message: 'User id is required',
-      errors: [{ msg: 'User id is required' }],
+      message: 'Unauthorized',
+      errors: [{ msg: 'Unauthorized' }],
     });
   }
 
@@ -100,10 +100,10 @@ exports.updateFriendRequest = async (req, res, next) => {
   const userId = getUserIdFromReq(req);
 
   if (!userId) {
-    return res.status(422).json({
+    return res.status(401).json({
       success: false,
-      message: 'User id is required',
-      errors: [{ msg: 'User id is required' }],
+      message: 'Unauthorized',
+      errors: [{ msg: 'Unauthorized' }],
     });
   }
   const { friendReqId } = req.params;
