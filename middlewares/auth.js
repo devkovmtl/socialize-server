@@ -11,7 +11,7 @@ exports.isAuthenticated = async (req, res, next) => {
       });
     }
     if (!user) {
-      return res.status(422).json({
+      return res.status(401).json({
         success: false,
         message: (info && info?.message) || 'Check access token failed',
         errors: [
@@ -33,7 +33,7 @@ exports.isAdmin = async (req, res, next) => {
       });
     }
     if (!user) {
-      return res.status(422).json({
+      return res.status(401).json({
         success: false,
         message: (info && info?.message) || 'Check access token failed',
         errors: [
