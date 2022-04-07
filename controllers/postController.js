@@ -2,6 +2,7 @@ const { body, validationResult } = require('express-validator');
 const Post = require('../models/post');
 const FriendsRequest = require('../models/friendRequest');
 const Like = require('../models/like');
+const Comment = require('../models/comment');
 const { getUserIdFromReq } = require('../utils/getUserIdFromReq');
 
 exports.createPost = [
@@ -106,6 +107,12 @@ exports.getUserAndFriendsPosts = async (req, res, next) => {
         populate: { path: 'user', select: 'username' },
       })
       .populate('totalLikes')
+      .populate({
+        path: 'comments',
+        select: 'author post',
+        populate: { path: 'author', select: 'username' },
+      })
+      .populate('totalComments')
       .sort({ updatedAt: -1, createdAt: -1 });
     //  Grab post that belong to user friends that are public or visible by friends
     const friendsPost = await Post.find({
@@ -119,6 +126,12 @@ exports.getUserAndFriendsPosts = async (req, res, next) => {
         populate: { path: 'user', select: 'username' },
       })
       .populate('totalLikes')
+      .populate({
+        path: 'comments',
+        select: 'author post',
+        populate: { path: 'author', select: 'username' },
+      })
+      .populate('totalComments')
       .sort({ updatedAt: -1, createdAt: -1 });
 
     const posts = [...userPost, ...friendsPost]
@@ -180,3 +193,41 @@ exports.likePost = async (req, res, next) => {
     return next(error);
   }
 };
+
+// create a comment
+exports.createComment = [
+  body('content').not().isEmpty().withMessage('Content is required').escape(),
+  async (req, res, next) => {
+    const userId = getUserIdFromReq(req);
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'Unauthorized',
+        errors: [{ msg: 'Unauthorized' }],
+      });
+    }
+    try {
+      const post = await Post.findById(req.params.postId);
+      if (!post) {
+        return res.status(404).json({
+          success: false,
+          message: 'Post not found',
+          errors: [{ msg: 'Post not found' }],
+        });
+      }
+      const comment = await Comment.create({
+        content: req.body.content,
+        author: userId,
+        post: post._id,
+      });
+
+      return res.status(201).json({
+        success: true,
+        message: 'Comment created successfully',
+        comment,
+      });
+    } catch (error) {
+      return next(error);
+    }
+  },
+];
