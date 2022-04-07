@@ -18,6 +18,12 @@ router.get('/', (req, res) => {
  */
 // like a post
 router.post('/post/:postId/like', isAuthenticated, postController.likePost);
+// create a comment
+router.post(
+  '/post/:postId/comment',
+  isAuthenticated,
+  postController.createComment
+);
 // create a post
 router.post('/posts', isAuthenticated, postController.createPost);
 // get post from current user and friends of current user
