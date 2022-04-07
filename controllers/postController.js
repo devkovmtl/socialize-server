@@ -1,6 +1,7 @@
 const { body, validationResult } = require('express-validator');
 const Post = require('../models/post');
 const FriendsRequest = require('../models/friendRequest');
+const Like = require('../models/like');
 const { getUserIdFromReq } = require('../utils/getUserIdFromReq');
 
 exports.createPost = [
@@ -97,13 +98,27 @@ exports.getUserAndFriendsPosts = async (req, res, next) => {
     // Grab only the posts  belong to the current user
     const userPost = await Post.find({
       author: userId,
-    }).sort({ updatedAt: -1, createdAt: -1 });
+    })
+      .populate('author', 'username')
+      .populate({
+        path: 'likes',
+        select: 'user post',
+        populate: { path: 'user', select: 'username' },
+      })
+      .populate('totalLikes')
+      .sort({ updatedAt: -1, createdAt: -1 });
     //  Grab post that belong to user friends that are public or visible by friends
     const friendsPost = await Post.find({
       author: { $in: [...onlyIds] },
       visibility: { $not: { $eq: 'private' } },
     })
       .populate('author', 'username')
+      .populate({
+        path: 'likes',
+        select: 'user post',
+        populate: { path: 'user', select: 'username' },
+      })
+      .populate('totalLikes')
       .sort({ updatedAt: -1, createdAt: -1 });
 
     const posts = [...userPost, ...friendsPost]
@@ -118,6 +133,49 @@ exports.getUserAndFriendsPosts = async (req, res, next) => {
       message: 'Posts fetched successfully',
       posts,
     });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+// like post
+exports.likePost = async (req, res, next) => {
+  const userId = getUserIdFromReq(req);
+  if (!userId) {
+    return res.status(401).json({
+      success: false,
+      message: 'Unauthorized',
+      errors: [{ msg: 'Unauthorized' }],
+    });
+  }
+  try {
+    const post = await Post.findById(req.params.postId);
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        message: 'Post not found',
+        errors: [{ msg: 'Post not found' }],
+      });
+    }
+
+    const isLiked = await Like.findOne({ post: post._id, user: userId });
+    if (isLiked) {
+      await Like.findByIdAndDelete(isLiked._id);
+      return res.status(200).json({
+        success: true,
+        message: 'Post unliked successfully',
+      });
+    } else {
+      const like = await Like.create({
+        user: userId,
+        post: post._id,
+      });
+      return res.status(200).json({
+        success: true,
+        message: 'Post liked successfully',
+        like,
+      });
+    }
   } catch (error) {
     return next(error);
   }

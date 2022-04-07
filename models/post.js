@@ -18,7 +18,22 @@ const PostSchema = new Schema(
       default: 'public',
     },
   },
-  { timestamps: true }
+  { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
+
+// get the likes
+PostSchema.virtual('likes', {
+  ref: 'Like',
+  localField: '_id',
+  foreignField: 'post',
+});
+
+// get the totals likes
+PostSchema.virtual('totalLikes', {
+  ref: 'Like',
+  localField: '_id',
+  foreignField: 'post',
+  count: true,
+});
 
 module.exports = model('Post', PostSchema);
