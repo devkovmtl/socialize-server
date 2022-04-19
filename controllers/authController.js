@@ -1,9 +1,19 @@
+const path = require('path');
 const { body, validationResult } = require('express-validator');
 const passport = require('passport');
+const multer = require('multer');
+const DatauriParser = require('datauri/parser');
 const User = require('../models/user');
 const { generateJwtToken } = require('../utils/auth');
+const cloudinary = require('../config/cloudinaryConfig');
+const fileFilter = require('../utils/imageFileFilter');
+
+// config multer
+const storage = multer.memoryStorage();
+const upload = multer({ storage, fileFilter });
 
 exports.register = [
+  upload.single('avatar'),
   body('username')
     .trim()
     .isLength({ min: 1 })
@@ -27,12 +37,13 @@ exports.register = [
     }
     return true;
   }),
+
   async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(422).json({
         success: false,
-        message: 'Registration failed',
+        message: errors.array()[0]['msg'] || 'Registration failed',
         errors: errors.array(),
       });
     }
@@ -42,7 +53,7 @@ exports.register = [
       if (userEmailTaken) {
         return res.status(422).json({
           success: false,
-          message: 'Registration failed',
+          message: 'Email already exists',
           errors: [
             {
               msg: 'Email already exists',
@@ -56,7 +67,7 @@ exports.register = [
       if (userUsernameTaken) {
         return res.status(422).json({
           success: false,
-          message: 'Registration failed',
+          message: 'Username already exists',
           errors: [
             {
               msg: 'Username already exists',
@@ -64,7 +75,29 @@ exports.register = [
           ],
         });
       }
-      const user = await User.create(req.body);
+
+      // user avatar
+      let avatar = '';
+
+      if (req.file) {
+        // upload file avatar to cloudinary
+        const parser = new DatauriParser();
+        const extensionName = path.extname(req.file.originalname).toString();
+        const file64 = parser.format(extensionName, req.file.buffer);
+        const result = await cloudinary.v2.uploader.upload(file64.content, {
+          folder: 'social/avatars',
+        });
+
+        avatar = result.secure_url;
+      }
+
+      const user = await User.create({
+        avatar:
+          avatar === ''
+            ? 'https://res.cloudinary.com/devkovmtl/image/upload/v1650380987/default_avatar.jpg'
+            : avatar,
+        ...req.body,
+      });
 
       // generate a token
       const accessToken = generateJwtToken(user);

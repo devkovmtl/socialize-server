@@ -4,7 +4,7 @@ const { userTokenInfo } = require('../utils/auth');
 exports.isAuthenticated = async (req, res, next) => {
   passport.authenticate('jwt', { session: false }, async (err, user, info) => {
     if (err) {
-      return res.status(500).json({
+      return res.status(401).json({
         success: false,
         message: (info && info?.message) || 'Check access token failed',
         errors: [{ msg: (err && err?.message) || 'Check access token failed' }],
@@ -26,7 +26,7 @@ exports.isAuthenticated = async (req, res, next) => {
 exports.isAdmin = async (req, res, next) => {
   passport.authenticate('jwt', { session: false }, async (err, user, info) => {
     if (err) {
-      return res.status(500).json({
+      return res.status(401).json({
         success: false,
         message: (info && info?.message) || 'Check access token failed',
         errors: [{ msg: (err && err?.message) || 'Check access token failed' }],

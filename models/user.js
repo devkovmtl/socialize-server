@@ -4,6 +4,9 @@ const { SALT_FACTOR } = process.env;
 
 const UserSchema = new Schema(
   {
+    avatar: {
+      type: String,
+    },
     username: {
       type: String,
     },
