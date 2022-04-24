@@ -5,6 +5,7 @@ const { isAuthenticated, isAdmin } = require('../middlewares/auth');
 const authController = require('../controllers/authController');
 const friendController = require('../controllers/friendController');
 const postController = require('../controllers/postController');
+const userController = require('../controllers/userController');
 
 router.get('/', (req, res) => {
   res.json({
@@ -28,6 +29,12 @@ router.post(
 router.post('/posts', isAuthenticated, postController.createPost);
 // get post from current user and friends of current user
 router.get('/posts', isAuthenticated, postController.getUserAndFriendsPosts);
+
+/**
+ * Users routes
+ */
+// get all users
+router.get('/users', isAuthenticated, userController.getUsers);
 
 /**
  * Friends routes
