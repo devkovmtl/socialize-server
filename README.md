@@ -15,3 +15,5 @@
 - [passport-local](http://www.passportjs.org/packages/passport-local/)
 - [jswonwebtoken](https://www.npmjs.com/package/jsonwebtoken)
 - [passport-jwt](http://www.passportjs.org/packages/passport-jwt/)
+- [multer](https://www.npmjs.com/package/multer)
+- [cloudinary](https://cloudinary.com/documentation/node_integration)
