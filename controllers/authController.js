@@ -109,6 +109,7 @@ exports.register = [
           username: user.username,
           email: user.email,
           role: user.role,
+          avatar: user.avatar,
         },
         accessToken,
       });
@@ -148,6 +149,7 @@ exports.login = [
           username: user.username,
           email: user.email,
           role: user.role,
+          avatar: user.avatar,
         },
         accessToken,
       });
